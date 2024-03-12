@@ -1,5 +1,6 @@
 package com.example.testingsockets
 
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
                             coroutineScope.launch {
                                 withContext(Dispatchers.IO) {
                                     ObjectDetect.initDetector(this@MainActivity)
-                                    testConnect()
+//                                    testConnect()
                                 }
                             }
                         }) {
@@ -78,18 +79,12 @@ class MainActivity : ComponentActivity() {
                             Text(text = "Close")
                         }
                         Button(onClick = {
-                            val bitmap = BitmapFactory.decodeResource(
-                                Resources.getSystem(),
-                                R.drawable.img_meal_two,
-                                BitmapFactory.Options().apply {
-                                    inMutable = true
-                                })
-                            Log.d("Bitmap testing", bitmap.width.toString())
-//                            coroutineScope.launch {
-//                                withContext(Dispatchers.IO) {
-//                                    setViewAndDetect(bitmap)
-//                                }
-//                            }
+                            val bitmap = resToBitmap(this@MainActivity)
+                            coroutineScope.launch {
+                                withContext(Dispatchers.IO) {
+                                    setViewAndDetect(bitmap)
+                                }
+                            }
                         }) {
                             Text(text = "Detect")
                         }
@@ -117,8 +112,17 @@ suspend fun setViewAndDetect(bitmap: Bitmap) {
     }
 }
 
-suspend fun testObjDetect(bitmap: Bitmap) {
+fun resToBitmap(con: Context): Bitmap {
+    val bitmap = BitmapFactory.decodeResource(con.resources,R.drawable.img_meal_two)
+    Log.d("Bitmap test",bitmap.width.toString())
+    return bitmap
+}
+
+fun testObjDetect(bitmap: Bitmap) {
     val resultToDisplay = ObjectDetect.runObjectDetection(bitmap)
+    for (result in resultToDisplay) {
+        Log.d(result.text,result.score)
+    }
 }
 
 fun testSend() {
@@ -132,20 +136,4 @@ suspend fun testConnect() {
 
 fun close() {
     SocketHelper.close()
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TestingSocketsTheme {
-        Greeting("Android")
-    }
 }

@@ -15,7 +15,7 @@ object ObjectDetect {
         val options =
             ObjectDetector.ObjectDetectorOptions.builder().setMaxResults(5).setScoreThreshold(0.5f)
                 .build()
-        val detector = ObjectDetector.createFromFileAndOptions(context, "model.tflite", options)
+        detector = ObjectDetector.createFromFileAndOptions(context, "model.tflite", options)
         Log.d(TAG,"Detector initialized")
     }
 
