@@ -11,15 +11,15 @@ object ObjectDetect {
     val TAG: String = "ObjectDetect"
     private lateinit var detector: ObjectDetector
 
-    fun initDetector(context: Context){
+    fun initDetector(context: Context) {
         val options =
             ObjectDetector.ObjectDetectorOptions.builder().setMaxResults(5).setScoreThreshold(0.5f)
                 .build()
         detector = ObjectDetector.createFromFileAndOptions(context, "model.tflite", options)
-        Log.d(TAG,"Detector initialized")
+        Log.d(TAG, "Detector initialized")
     }
 
-    fun runObjectDetection(bitmap: Bitmap): List<DetectionResult> {
+    fun runObjectDetection(bitmap: Bitmap): String {
         val image = TensorImage.fromBitmap(bitmap)
         val results = detector.detect(image)
 
@@ -32,7 +32,41 @@ object ObjectDetect {
             // Create a data object to display the detection result
             DetectionResult(it.boundingBox, label, score)
         }
+        for (result in resultToDisplay.withIndex()) {
+            val tempDims = mutableMapOf<String, Int>()
+            val bBox = result.value.boundingBox
+            if (bBox.left.toInt() < 0) {
+                tempDims["Left"] = 1
+            } else {
+                tempDims["Left"] = (bBox.left.toInt())
+            }
+            if (bBox.top.toInt() < 0) {
+                tempDims["Top"] = 1
+            } else {
+                tempDims["Top"] = (bBox.top.toInt())
+            }
+            if (bBox.width() + tempDims["Left"]!! > bitmap.width) {
+                tempDims["Width"] = ((bitmap.width - tempDims["Left"]!!) - 1)
+            } else {
+                tempDims["Width"] = (bBox.width().toInt())
+            }
+            if (bBox.height() + tempDims["Top"]!! > bitmap.height) {
+                tempDims["Height"] = ((bitmap.height - tempDims["Top"]!!) - 1)
+            } else {
+                tempDims["Height"] = (bBox.height().toInt())
+            }
 
-        return resultToDisplay
+            val tempBitmap = Bitmap.createBitmap(
+                bitmap,
+                tempDims["Left"]!!,
+                tempDims["Top"]!!,
+                tempDims["Width"]!! - 1,
+                tempDims["Height"]!! - 1
+            )
+            val b64 = Base64Util.bitmapToBase64(tempBitmap)
+            return b64
+        }
+        return "Null"
     }
+
 }

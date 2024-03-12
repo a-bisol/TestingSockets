@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
                             coroutineScope.launch {
                                 withContext(Dispatchers.IO) {
                                     ObjectDetect.initDetector(this@MainActivity)
-//                                    testConnect()
+                                    testConnect()
                                 }
                             }
                         }) {
@@ -113,16 +113,19 @@ suspend fun setViewAndDetect(bitmap: Bitmap) {
 }
 
 fun resToBitmap(con: Context): Bitmap {
-    val bitmap = BitmapFactory.decodeResource(con.resources,R.drawable.img_meal_two)
-    Log.d("Bitmap test",bitmap.width.toString())
-    return bitmap
+    val bitmap = BitmapFactory.decodeResource(con.resources, R.drawable.img_meal_two)
+    Log.d("Bitmap test", bitmap.width.toString())
+    val resized = Bitmap.createScaledBitmap(
+        bitmap, (bitmap.width * 0.2).toInt(),
+        (bitmap.height * 0.2).toInt(), true
+    )
+    Log.d("Resize test",resized.width.toString())
+    return resized
 }
 
 fun testObjDetect(bitmap: Bitmap) {
     val resultToDisplay = ObjectDetect.runObjectDetection(bitmap)
-    for (result in resultToDisplay) {
-        Log.d(result.text,result.score)
-    }
+    SocketHelper.sendMessage(resultToDisplay)
 }
 
 fun testSend() {
@@ -131,7 +134,7 @@ fun testSend() {
 }
 
 suspend fun testConnect() {
-    SocketHelper.start(60000, "192.168.2.46")
+    SocketHelper.start(60000, "192.168.1.140")
 }
 
 fun close() {

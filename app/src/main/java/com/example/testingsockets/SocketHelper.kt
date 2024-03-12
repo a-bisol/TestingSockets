@@ -52,9 +52,6 @@ object SocketHelper {
                 msg = input.readLine()
                 while (msg != null) {
                     Log.d("Msg", msg)
-                    val jsonStudent = gson.fromJson(msg, Test::class.java)
-                    Log.d("ID",jsonStudent.id.toString())
-                    Log.d("Desc",jsonStudent.desc)
                     msg = input.readLine()
                 }
                 Log.e("Uhoh Stinky", "Server unreachable")
