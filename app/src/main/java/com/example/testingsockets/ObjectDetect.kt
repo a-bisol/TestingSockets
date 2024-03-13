@@ -34,25 +34,33 @@ object ObjectDetect {
 
                     val tempDims = mutableMapOf<String, Int>()
                     val bBox = result.boundingBox
-                    if (bBox.left.toInt() < 0) {
+                    val pad = 0.35
+                    //If boundingBox+pad extends past bitmap, set to edge to 1, otherwise give padding
+                    val leftMargin = (bBox.left-(bBox.width()*pad)).toInt()
+                    if (leftMargin < 0) {
                         tempDims["Left"] = 1
                     } else {
-                        tempDims["Left"] = (bBox.left.toInt())
+                        tempDims["Left"] = (((bBox.left) - (bBox.width()*pad)).toInt())
                     }
-                    if (bBox.top.toInt() < 0) {
+                    val topMargin = (bBox.top-(bBox.height()*pad)).toInt()
+                    if (topMargin < 0) {
                         tempDims["Top"] = 1
                     } else {
-                        tempDims["Top"] = (bBox.top.toInt())
+                        tempDims["Top"] = ((bBox.top) - (bBox.height()*pad)).toInt()
                     }
-                    if (bBox.width() + tempDims["Left"]!! > bitmap.width) {
+
+                    //If boundingBox+pad extends past bitmap, set to edge to bitmap constraint, otherwise give padding
+                    val rightMargin = ((1+(2*pad))*bBox.width()).toInt() + tempDims["Left"]!!
+                    if (rightMargin > bitmap.width) {
                         tempDims["Width"] = ((bitmap.width - tempDims["Left"]!!) - 1)
                     } else {
-                        tempDims["Width"] = (bBox.width().toInt())
+                        tempDims["Width"] = (((1+(2*pad))*bBox.width()).toInt())
                     }
-                    if (bBox.height() + tempDims["Top"]!! > bitmap.height) {
+                    val bottomMargin = ((1+(2*pad))*bBox.height()).toInt() + tempDims["Top"]!!
+                    if (bottomMargin > bitmap.height) {
                         tempDims["Height"] = ((bitmap.height - tempDims["Top"]!!) - 1)
                     } else {
-                        tempDims["Height"] = (bBox.height().toInt())
+                        tempDims["Height"] = (((1+(2*pad))*bBox.height()).toInt())
                     }
 
                     val tempBitmap = Bitmap.createBitmap(

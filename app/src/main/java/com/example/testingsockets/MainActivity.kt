@@ -4,13 +4,14 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -57,14 +58,37 @@ class MainActivity : ComponentActivity() {
                         }) {
                             Text(text = "Connect")
                         }
-                        Button(onClick = {
-                            coroutineScope.launch {
-                                withContext(Dispatchers.IO) {
-                                    testSend()
+                        Row (
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ){
+                            Button(onClick = {
+                                coroutineScope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        testSend()
+                                    }
                                 }
+                            }) {
+                                Text(text = "Send")
                             }
-                        }) {
-                            Text(text = "Send")
+                            Button(onClick = {
+                                coroutineScope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        testSend()
+                                    }
+                                }
+                            }) {
+                                Text(text = "Send")
+                            }
+                            Button(onClick = {
+                                coroutineScope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        testSend()
+                                    }
+                                }
+                            }) {
+                                Text(text = "Send")
+                            }
                         }
                         Button(onClick = {
                             coroutineScope.launch {
@@ -110,21 +134,15 @@ suspend fun setViewAndDetect(bitmap: Bitmap) {
 }
 
 fun resToBitmap(con: Context): Bitmap {
-    val bitmap = BitmapFactory.decodeResource(con.resources, R.drawable.img_meal_two)
-    Log.d("Bitmap test", bitmap.width.toString())
-//    val resized = Bitmap.createScaledBitmap(
-//        bitmap, (bitmap.width * 0.2).toInt(),
-//        (bitmap.height * 0.2).toInt(), true
-//    )
-//    Log.d("Resize test",resized.width.toString())
-    return bitmap
+    return BitmapFactory.decodeResource(con.resources, R.drawable.img_meal_two)
 }
 
 fun testObjDetect(bitmap: Bitmap) {
     val returnedResults = ObjectDetect.runObjectDetection(bitmap)
     if (returnedResults != null) {
         for (result in returnedResults) {
-            val output = OutputJSON(3.1,4.1,5.2,result.label,Base64Util.bitmapToBase64(result.img))
+            val output =
+                OutputJSON(3.1, 4.1, 5.2, result.label, Base64Util.bitmapToBase64(result.img))
             SocketHelper.sendJSON(output)
         }
     }
@@ -135,7 +153,7 @@ fun testSend() {
 }
 
 suspend fun testConnect() {
-    SocketHelper.start(60000, "10.0.0.152")
+    SocketHelper.start(9999, "192.168.2.46")
 }
 
 fun close() {
