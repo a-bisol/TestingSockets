@@ -10,7 +10,7 @@ object Base64Util {
     @OptIn(ExperimentalEncodingApi::class)
     fun bitmapToBase64(bitmap: Bitmap): String {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 25, byteArrayOutputStream)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, byteArrayOutputStream)
 
         val byteArray = byteArrayOutputStream.toByteArray()
         return Base64.encode(byteArray)

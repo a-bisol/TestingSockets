@@ -1,7 +1,9 @@
 package com.example.testingsockets
 
 import android.util.Log
+import com.example.testingsockets.data.OutputJSON
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
@@ -15,7 +17,7 @@ object SocketHelper {
     private lateinit var clientSocket: Socket
     private lateinit var output: PrintWriter
     private lateinit var input: BufferedReader
-    private var gson = Gson()
+    private var gson = GsonBuilder().disableHtmlEscaping().create()
 
     suspend fun start(port: Int, ip: String) {
         try {
@@ -38,9 +40,8 @@ object SocketHelper {
         output.println(msg)
     }
 
-    fun sendJSON() {
-        val testSend = Test(42,"Testing 42nd send")
-        val jsonString = gson.toJson(testSend)
+    fun sendJSON(obj: OutputJSON) {
+        val jsonString = gson.toJson(obj)
         output.println(jsonString)
     }
 
@@ -51,10 +52,11 @@ object SocketHelper {
                 Log.d("Receiver","Online")
                 msg = input.readLine()
                 while (msg != null) {
-                    Log.d("Msg", msg)
                     msg = input.readLine()
+//                    TODO
+//                    Handle actions depending on input
                 }
-                Log.e("Uhoh Stinky", "Server unreachable")
+                Log.e("Receiver", "Server unreachable")
                 output.close()
                 clientSocket.close()
             }

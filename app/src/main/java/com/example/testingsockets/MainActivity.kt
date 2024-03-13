@@ -1,7 +1,6 @@
 package com.example.testingsockets
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -19,17 +18,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.testingsockets.data.OutputJSON
 import com.example.testingsockets.ui.theme.TestingSocketsTheme
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -115,26 +112,30 @@ suspend fun setViewAndDetect(bitmap: Bitmap) {
 fun resToBitmap(con: Context): Bitmap {
     val bitmap = BitmapFactory.decodeResource(con.resources, R.drawable.img_meal_two)
     Log.d("Bitmap test", bitmap.width.toString())
-    val resized = Bitmap.createScaledBitmap(
-        bitmap, (bitmap.width * 0.2).toInt(),
-        (bitmap.height * 0.2).toInt(), true
-    )
-    Log.d("Resize test",resized.width.toString())
-    return resized
+//    val resized = Bitmap.createScaledBitmap(
+//        bitmap, (bitmap.width * 0.2).toInt(),
+//        (bitmap.height * 0.2).toInt(), true
+//    )
+//    Log.d("Resize test",resized.width.toString())
+    return bitmap
 }
 
 fun testObjDetect(bitmap: Bitmap) {
-    val resultToDisplay = ObjectDetect.runObjectDetection(bitmap)
-    SocketHelper.sendMessage(resultToDisplay)
+    val returnedResults = ObjectDetect.runObjectDetection(bitmap)
+    if (returnedResults != null) {
+        for (result in returnedResults) {
+            val output = OutputJSON(3.1,4.1,5.2,result.label,Base64Util.bitmapToBase64(result.img))
+            SocketHelper.sendJSON(output)
+        }
+    }
 }
 
 fun testSend() {
-//    SocketHelper.sendMessage("Testing!")
-    SocketHelper.sendJSON()
+    SocketHelper.sendMessage("Testing!")
 }
 
 suspend fun testConnect() {
-    SocketHelper.start(60000, "192.168.1.140")
+    SocketHelper.start(60000, "10.0.0.152")
 }
 
 fun close() {
