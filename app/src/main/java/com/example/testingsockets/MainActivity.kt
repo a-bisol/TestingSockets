@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -25,11 +26,16 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.testingsockets.data.DroneInit
 import com.example.testingsockets.data.OutputJSON
 import com.example.testingsockets.ui.theme.TestingSocketsTheme
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+val gson: Gson = GsonBuilder().disableHtmlEscaping().create()
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,18 +64,18 @@ class MainActivity : ComponentActivity() {
                         }) {
                             Text(text = "Connect")
                         }
-                        Row (
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ){
+                        ) {
                             Button(onClick = {
                                 coroutineScope.launch {
                                     withContext(Dispatchers.IO) {
-                                        testSend()
+                                        testInit()
                                     }
                                 }
                             }) {
-                                Text(text = "Send")
+                                Text(text = "Init")
                             }
                             Button(onClick = {
                                 coroutineScope.launch {
@@ -78,7 +84,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }) {
-                                Text(text = "Send")
+                                Text(text = "Send 2")
                             }
                             Button(onClick = {
                                 coroutineScope.launch {
@@ -87,7 +93,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }) {
-                                Text(text = "Send")
+                                Text(text = "Send 3")
                             }
                         }
                         Button(onClick = {
@@ -150,6 +156,13 @@ fun testObjDetect(bitmap: Bitmap) {
 
 fun testSend() {
     SocketHelper.sendMessage("Testing!")
+}
+
+fun testInit() {
+    val droneInit = DroneInit(43.860930, -78.851260, 0.0, 45.0)
+    val jsonString = gson.toJson(droneInit)
+    Log.d("DroneInit",jsonString)
+    SocketHelper.sendMessage(jsonString)
 }
 
 suspend fun testConnect() {

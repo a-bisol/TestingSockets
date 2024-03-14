@@ -3,6 +3,7 @@ package com.example.testingsockets
 import android.util.Log
 import com.example.testingsockets.data.OutputJSON
 import com.example.testingsockets.data.Points
+import com.example.testingsockets.data.ServerComms
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,13 +32,7 @@ object SocketHelper {
         } catch (e: Exception) {
             Log.e("Misc error", e.toString())
         }
-
         Log.d("Started", clientSocket.isConnected.toString())
-        val sendStringObj = Points(
-            "[[43.94554359908121, -78.89668560139657], [43.944835864796055, -78.89603759292302], [43.944804666633644, -78.8969562996474], [43.9455124009188, -78.89760432372148], [43.945528, -78.897145]]",
-            50
-        )
-        sendMessage(gson.toJson(sendStringObj))
         receiver()
     }
 
@@ -56,22 +51,18 @@ object SocketHelper {
             withContext(Dispatchers.IO) {
                 Log.d("Receiver", "Online")
                 msg = input.readLine()
-                Log.d("Msg received", msg)
-                val pointsObj = gson.fromJson(msg,Points::class.java)
-                val pointStr = pointsObj.points.substring(1,pointsObj.points.length-1)
-                val points = pointStr.split("], [").toTypedArray()
-                points[points.lastIndex]=points.last().substring(0,points.last().length-1)
-                points[0]=points.first().substring(1,points.first().length)
-                for (point in points) {
-                    val tempPoints = point.split(", ")
-                    val (x,y) = Pair(tempPoints[0].toDouble(), tempPoints[1].toDouble())
-                    Log.d("Point Res", "First: $x Second: $y")
-                }
+                Log.d("Msg",msg)
                 while (msg != null) {
+                    //Keeps reading line by line until null is received
+                    //Studio lies and this cannot be replaced by while(true)
                     msg = input.readLine()
-                    Log.d("Msg received", msg)
-//                    TODO
-//                    Handle actions depending on input
+                    if (msg.contains("points")) {
+                        parsePoints(msg)
+                    } else if (msg.contains("uid")) {
+                        parseFind(msg)
+                    } else {
+                        Log.d("Unknown message", msg)
+                    }
                 }
                 Log.e("Receiver", "Server unreachable")
                 output.close()
@@ -80,6 +71,28 @@ object SocketHelper {
         } catch (e: IOException) {
             Log.e("Error", e.toString())
         }
+    }
+
+    private fun parseFind(msg: String) {
+        val findObj = gson.fromJson(msg, ServerComms::class.java)
+        Log.d("ParseFind",findObj.x_cord.toString()+", "+findObj.y_cord.toString())
+//        val location2D = LocationCoordinate2D(findObj.x_cord, findObj.y_cord)
+//        FlightStateManager.setPriority(location2D)
+        //TODO Compare findObj.image to current images
+    }
+
+
+
+    private fun parsePoints(msg: String) {
+        val pointsObj = gson.fromJson(msg, Points::class.java)
+//        FlightStateManager.setAltitudeTarget(pointsObj.altitude)
+        Log.d("ParsePoints",pointsObj.altitude.toString())
+        //Strips first set of []
+        for (entry in pointsObj.points) {
+            Log.d("SinglePoint",entry[0].toString()+", "+entry[1].toString())
+        }
+        Log.d("Name",pointsObj.drone_name)
+        Log.d("Target",pointsObj.target)
     }
 
     fun close() {

@@ -1,6 +1,8 @@
 package com.example.testingsockets.data
 
 data class Points(
-    val points: String,
-    val altitude: Int
+    val points: ArrayList<DoubleArray>,
+    val altitude: Double,
+    val drone_name: String,
+    val target: String
 )

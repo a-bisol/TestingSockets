@@ -1,9 +1,8 @@
 package com.example.testingsockets.data
 
-data class OutputJSON(
+data class DroneInit(
     val x_cord: Double,
     val y_cord: Double,
-    val alt: Double,
-    val label: String,
-    val image: String
+    val heading: Double,
+    val camera_angle: Double
 )

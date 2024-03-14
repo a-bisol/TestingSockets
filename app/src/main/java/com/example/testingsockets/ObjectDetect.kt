@@ -3,7 +3,7 @@ package com.example.testingsockets
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import com.example.testingsockets.data.CroppedResults
+import com.example.testingsockets.data.CroppedResult
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.vision.detector.ObjectDetector
 
@@ -20,10 +20,10 @@ object ObjectDetect {
         Log.d(TAG, "Detector initialized")
     }
 
-    fun runObjectDetection(bitmap: Bitmap): List<CroppedResults>? {
+    fun runObjectDetection(bitmap: Bitmap): List<CroppedResult>? {
         val image = TensorImage.fromBitmap(bitmap)
         val results = detector.detect(image)
-        val finalResults = mutableListOf<CroppedResults>()
+        val finalResults = mutableListOf<CroppedResult>()
 
         for (result in results) {
             for (category in result.categories) {
@@ -70,7 +70,7 @@ object ObjectDetect {
                         tempDims["Width"]!! - 1,
                         tempDims["Height"]!! - 1
                     )
-                    finalResults.add(CroppedResults(tempBitmap, label, score))
+                    finalResults.add(CroppedResult(tempBitmap, label, score))
                 }
                 Log.d("DETECTED",category.label+" "+category.score)
             }
